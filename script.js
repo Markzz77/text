@@ -22,7 +22,7 @@ musicPanel.innerHTML = `
     <div><strong>bgm.mp3</strong><p>Xin's little world</p></div>
   </div>
   <audio id="bgm" src="./music/bgm.mp3" loop preload="metadata"></audio>
-  <button id="playPause" class="player-main-btn">▶ Play</button>
+  <button id="playPause" class="player-main-btn">Pause</button>
   <label class="player-label"><span>Progress</span><input id="progressBar" type="range" min="0" max="100" value="0"></label>
   <label class="player-label"><span>Volume</span><input id="volumeBar" type="range" min="0" max="1" step="0.01" value="0.55"></label>
 `;
@@ -47,6 +47,7 @@ It's nice to meet you. ♡
 
 let index = 0;
 let played = false;
+let musicStarted = false;
 
 function makeStars(){
     const icons = ["✦","♡","·","✧"];
@@ -69,7 +70,33 @@ document.addEventListener("mousemove", (event) => {
     glow.style.top = `${event.clientY}px`;
 });
 
+const savedVolume = localStorage.getItem("xin-volume");
+const targetVolume = savedVolume ? Number(savedVolume) : 0.55;
+bgm.volume = targetVolume;
+volumeBar.value = targetVolume;
+
+function fadeInMusic(){
+    if(musicStarted) return;
+    musicStarted = true;
+    bgm.volume = 0;
+    bgm.play().then(() => {
+        playPause.textContent = "Pause";
+        musicPanel.classList.add("playing");
+        musicPanel.classList.remove("hidden");
+        let volume = 0;
+        const fade = setInterval(() => {
+            volume += 0.02;
+            bgm.volume = Math.min(volume, Number(volumeBar.value));
+            if(volume >= Number(volumeBar.value)) clearInterval(fade);
+        }, 120);
+    }).catch(() => {
+        musicPanel.classList.remove("hidden");
+        playPause.textContent = "Play";
+    });
+}
+
 heart.addEventListener("click", () => {
+    fadeInMusic();
     if(played) return;
     played = true;
     heart.classList.add("clicked");
@@ -108,10 +135,6 @@ backTop.addEventListener("click", () => {
     setTimeout(() => landing.classList.remove("exit"), 50);
 });
 
-const savedVolume = localStorage.getItem("xin-volume");
-bgm.volume = savedVolume ? Number(savedVolume) : 0.55;
-volumeBar.value = bgm.volume;
-
 musicBtn.addEventListener("click", () => {
     musicPanel.classList.toggle("hidden");
 });
@@ -123,11 +146,11 @@ closeMusic.addEventListener("click", () => {
 playPause.addEventListener("click", async () => {
     if(bgm.paused){
         await bgm.play();
-        playPause.textContent = "⏸ Pause";
+        playPause.textContent = "Pause";
         musicPanel.classList.add("playing");
     }else{
         bgm.pause();
-        playPause.textContent = "▶ Play";
+        playPause.textContent = "Play";
         musicPanel.classList.remove("playing");
     }
 });
