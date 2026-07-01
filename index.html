@@ -31,10 +31,27 @@
         </section>
     </main>
 
-    <button id="musicBtn" class="music-btn" aria-label="Open music">
+    <button id="musicBtn" class="music-btn" aria-label="Open music player">
         <span class="icon">♪</span>
         <span class="text">Music</span>
     </button>
+
+    <div id="musicPanel" class="music-panel hidden" aria-label="Music player">
+        <div class="music-panel-head">
+            <span>Now Playing ♡</span>
+            <button id="closeMusic" aria-label="Close music player">×</button>
+        </div>
+        <iframe
+            id="youtubePlayer"
+            title="YouTube music player"
+            width="100%"
+            height="160"
+            src=""
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowfullscreen>
+        </iframe>
+        <p class="music-note">可在播放器裡暫停、播放、調整音量。</p>
+    </div>
 
     <section id="about" class="about" aria-label="About Xin">
         <nav class="topbar">
