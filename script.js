@@ -6,10 +6,32 @@ const tip = document.querySelector(".tip");
 const landing = document.getElementById("landing");
 const about = document.getElementById("about");
 const musicBtn = document.getElementById("musicBtn");
+const musicPanel = document.getElementById("musicPanel");
 const backTop = document.getElementById("backTop");
 const glow = document.querySelector(".cursor-glow");
 const stars = document.querySelector(".stars");
 const profileCard = document.getElementById("profileCard");
+
+musicPanel.innerHTML = `
+  <div class="music-panel-head">
+    <span>Now Playing ♡</span>
+    <button id="closeMusic" aria-label="Close music player">×</button>
+  </div>
+  <div class="track-card">
+    <div class="disc">♪</div>
+    <div><strong>bgm.mp3</strong><p>Xin's little world</p></div>
+  </div>
+  <audio id="bgm" src="./music/bgm.mp3" loop preload="metadata"></audio>
+  <button id="playPause" class="player-main-btn">▶ Play</button>
+  <label class="player-label"><span>Progress</span><input id="progressBar" type="range" min="0" max="100" value="0"></label>
+  <label class="player-label"><span>Volume</span><input id="volumeBar" type="range" min="0" max="1" step="0.01" value="0.55"></label>
+`;
+
+const closeMusic = document.getElementById("closeMusic");
+const bgm = document.getElementById("bgm");
+const playPause = document.getElementById("playPause");
+const progressBar = document.getElementById("progressBar");
+const volumeBar = document.getElementById("volumeBar");
 
 const text = `Hello ♡
 你好呀
@@ -86,8 +108,43 @@ backTop.addEventListener("click", () => {
     setTimeout(() => landing.classList.remove("exit"), 50);
 });
 
+const savedVolume = localStorage.getItem("xin-volume");
+bgm.volume = savedVolume ? Number(savedVolume) : 0.55;
+volumeBar.value = bgm.volume;
+
 musicBtn.addEventListener("click", () => {
-    window.open("https://www.youtube.com/watch?v=RMzwZZXt2co", "_blank");
+    musicPanel.classList.toggle("hidden");
+});
+
+closeMusic.addEventListener("click", () => {
+    musicPanel.classList.add("hidden");
+});
+
+playPause.addEventListener("click", async () => {
+    if(bgm.paused){
+        await bgm.play();
+        playPause.textContent = "⏸ Pause";
+        musicPanel.classList.add("playing");
+    }else{
+        bgm.pause();
+        playPause.textContent = "▶ Play";
+        musicPanel.classList.remove("playing");
+    }
+});
+
+bgm.addEventListener("timeupdate", () => {
+    if(!bgm.duration) return;
+    progressBar.value = (bgm.currentTime / bgm.duration) * 100;
+});
+
+progressBar.addEventListener("input", () => {
+    if(!bgm.duration) return;
+    bgm.currentTime = (progressBar.value / 100) * bgm.duration;
+});
+
+volumeBar.addEventListener("input", () => {
+    bgm.volume = Number(volumeBar.value);
+    localStorage.setItem("xin-volume", bgm.volume);
 });
 
 profileCard.addEventListener("mousemove", (event) => {
